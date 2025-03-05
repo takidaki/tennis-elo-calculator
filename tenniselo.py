@@ -80,6 +80,10 @@ elif option == "WTA Ratings":
     url = "https://tennisabstract.com/reports/wta_elo_ratings.html"
     elo_data = fetch_elo_ratings(url)
 
+# Debugging: Print the columns and first few rows
+print("Columns in elo_data:", elo_data.columns)
+print("First few rows of elo_data:\n", elo_data.head())
+
 # Store the fetched data as a variable without displaying it
 # st.dataframe(elo_data)  # Commented out to prevent displaying the table
 
@@ -98,11 +102,15 @@ with col1:
     search_player1 = st.text_input("Search Player 1", "")
     
     # Filter the player list based on the search input, ensuring we only check strings
-    filtered_players1 = [
-        player for player in elo_data['Player'].tolist() 
-        if isinstance(player, str) and search_player1.lower() in player.lower()
-    ]
-    
+    if 'Player' in elo_data.columns:  # Check if 'Player' column exists
+        filtered_players1 = [
+            player for player in elo_data['Player'].tolist() 
+            if isinstance(player, str) and search_player1.lower() in player.lower()
+        ]
+    else:
+        st.error("Column 'Player' not found in elo_data.")
+        filtered_players1 = []  # Handle the absence of the column appropriately
+
     # Use selectbox with filtered player list
     player1 = st.selectbox("Player 1", filtered_players1, key="player1")
     
@@ -223,4 +231,3 @@ with col5:
         <p>Odds: {win_odds_player2:.2f}</p>
     </div>
     """, unsafe_allow_html=True)
-
