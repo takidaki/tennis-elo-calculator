@@ -101,8 +101,8 @@ with col1:
     st.markdown("<div class='header'>Select Player 1:</div>", unsafe_allow_html=True)
     search_player1 = st.text_input("Search Player 1", "")
     
-    # Filter the player list based on the search input, ensuring we only check strings
-    if 'Player' in elo_data.columns:  # Check if 'Player' column exists
+    # Check if 'Player' column exists
+    if 'Player' in elo_data.columns:
         filtered_players1 = [
             player for player in elo_data['Player'].tolist() 
             if isinstance(player, str) and search_player1.lower() in player.lower()
