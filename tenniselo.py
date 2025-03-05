@@ -6,15 +6,25 @@ import urllib.parse
 
 # Function to fetch and parse Elo ratings
 def fetch_elo_ratings(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    
-    # Find all tables in the HTML
-    tables = soup.find_all('table')
-    
-    # Use the second table (index 1) if it exists
-    df = pd.read_html(str(tables[1]))[0] if len(tables) > 1 else pd.DataFrame()  # Read the second table into a DataFrame
-    return df
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Find all tables in the HTML
+        tables = soup.find_all('table')
+        
+        if len(tables) > 1:
+            df = pd.read_html(str(tables[1]))[0]  # Read the second table into a DataFrame
+            # Rename columns if they don't match expected format
+            if 'Player' not in df.columns and len(df.columns) >= 1:
+                df = df.rename(columns={df.columns[0]: 'Player'})
+            return df
+        else:
+            st.error("No data tables found on the webpage")
+            return pd.DataFrame({'Player': [], 'hElo': [], 'cElo': [], 'gElo': []})
+    except Exception as e:
+        st.error(f"Error fetching data: {str(e)}")
+        return pd.DataFrame({'Player': [], 'hElo': [], 'cElo': [], 'gElo': []})
 
 # Function to calculate win probability
 def calculate_win_probability(elo_a, elo_b):
@@ -80,9 +90,7 @@ elif option == "WTA Ratings":
     url = "https://tennisabstract.com/reports/wta_elo_ratings.html"
     elo_data = fetch_elo_ratings(url)
 
-# Debugging: Print the columns and first few rows
-print("Columns in elo_data:", elo_data.columns)
-print("First few rows of elo_data:\n", elo_data.head())
+
 
 # Store the fetched data as a variable without displaying it
 # st.dataframe(elo_data)  # Commented out to prevent displaying the table
